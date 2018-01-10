@@ -45,3 +45,16 @@ SECURE_FRAME_DENY               = False\n\n" | cat - base.py > temp && mv temp b
 
 
 #add code to production.py for heroku database to work
+DATABASE_REPLACE="DATABASES = {\n
+    'default': {\n
+        'ENGINE': 'django.db.backends.sqlite3',\n
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),\n
+    }\n
+}"
+
+DATABASE_STR="import dj_database_url\n
+db_from_env = dj_database_url.config()\n
+DATABASES['default'].update(db_from_env)\n
+DATABASES['default']['CONN_MAX_AGE'] = 500"
+
+perl -pi -e "s/$DATABASE_REPLACE/$DATABASE_REPLACE\n\n$DATABASE_STR/igs" production.py
